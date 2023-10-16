@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Importacion
+from decimal import Decimal
 
 VALOR_DOLAR = 890
 
@@ -29,7 +30,7 @@ def importacion(request):
 
     return render(request, 'importacion.html')
 
-from decimal import Decimal  # Importa Decimal
+
 
 def lista_simulaciones(request):
     simulaciones = Importacion.objects.all()
@@ -37,10 +38,10 @@ def lista_simulaciones(request):
     for simulacion in simulaciones:
         simulacion.total_pedido = simulacion.calcular_total_pedido()
         impuestos = simulacion.calcular_total_impuestos()
-        simulacion.tasa_aduana = Decimal(impuestos[0])
-        simulacion.iva = Decimal(impuestos[1]) 
-        simulacion.total_en_clp = (
-            simulacion.total_pedido + Decimal(simulacion.costo_envio_usd) * VALOR_DOLAR  + simulacion.tasa_aduana + simulacion.iva
-        )
+        simulacion.tasa_aduana = round(Decimal(impuestos[0]),1)
+        simulacion.iva = round(Decimal(impuestos[1]),1)
+        simulacion.total_en_clp = round((
+            (simulacion.total_pedido + simulacion.costo_envio_usd) * VALOR_DOLAR  + simulacion.tasa_aduana + simulacion.iva
+        ),1)
     
     return render(request, 'lista_simulaciones.html', {'simulaciones': simulaciones})

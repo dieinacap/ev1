@@ -1,6 +1,9 @@
 from decimal import Decimal
 from django.db import models
 
+
+VALOR_DOLAR = 890
+
 class Importacion(models.Model):
     cantidad_unidades = models.PositiveIntegerField()
     costo_unitario_usd = models.DecimalField(max_digits=10, decimal_places=2)
@@ -14,6 +17,17 @@ class Importacion(models.Model):
 
     def calcular_total_impuestos(self):
         valor_cif = self.costo_envio_usd + self.calcular_total_pedido()
-        tasa_aduana = valor_cif * Decimal('0.06')
-        iva = valor_cif * Decimal('0.19')
-        return tasa_aduana, iva
+        
+        # Calcula la tasa de aduana en dólares
+        tasa_aduana_usd = valor_cif * Decimal('0.06')
+        
+        # Convierte la tasa de aduana a pesos chilenos usando el tipo de cambio (VALOR_DOLAR)
+        tasa_aduana_clp = tasa_aduana_usd * VALOR_DOLAR
+        
+        # Calcula el IVA en dólares
+        iva_usd = valor_cif * Decimal('0.19')
+        
+        # Convierte el IVA a pesos chilenos usando el tipo de cambio (VALOR_DOLAR)
+        iva_clp = iva_usd * VALOR_DOLAR
+        
+        return tasa_aduana_clp, iva_clp
